@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 <div class="container-fluid mt-3">
+    {{-- Header con Logo --}}
     <div class="card border shadow-sm mb-4">
         <div class="card-body d-flex align-items-center justify-content-center py-3 mt-3">
             <img src="{{ asset('img/logo250.png') }}" alt="SENA" style="height: 60px; margin-right: 20px;">
@@ -11,20 +12,20 @@
         </div>
     </div>
 
+    {{-- Banner de Bienvenida --}}
     <div class="card border-0 shadow bg-success text-white mb-5 ">
         <div class="card-body py-5 px-4">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="display-5 fw-bold mb-3 text-white">
-                        {{-- Si no tienes login activo aún, puedes poner "Usuario" --}}
-                        ¡Bienvenid@, {{ auth()->check() ? auth()->user()->name : 'Usuario' }}!
+                        ¡Bienvenid@, {{ auth()->user()->name }}!
                     </h1>
                     <p class="lead mb-4 text-white">
-                        Gestión de formularios y permisos con reportes de manera eficiente y segura con nuestro sistema moderno.
+                        Usted ha ingresado con el rol de: <strong>{{ ucfirst(auth()->user()->role) }}</strong>.
                     </p>
                 </div>
                 <div class="col-md-4 text-center d-none d-md-block">
-                    <i class="fas fa-calendar-check fa-5x text-white opacity-75"></i>
+                    <i class="fas fa-user-shield fa-5x text-white opacity-75"></i>
                 </div>
             </div>
         </div>
@@ -35,6 +36,8 @@
             <i class="fas fa-rocket me-2 text-primary mt-3"></i>Accesos Rápidos
         </h4>
         <div class="row g-3 mt-3">
+            
+            {{-- BOTÓN INICIO (Todos) --}}
             <div class="col-md-6 col-lg-3">
                 <a href="{{ route('inicio') }}" class="text-decoration-none">
                     <div class="card h-100 border border-primary shadow-sm card-hover">
@@ -49,6 +52,8 @@
                 </a>
             </div>
 
+            {{-- BOTÓN FORMULARIO (Solo Contratista) --}}
+            @if(auth()->user()->role == 'contratista')
             <div class="col-md-6 col-lg-3">
                 <a href="{{ route('formulario') }}" class="text-decoration-none">
                     <div class="card h-100 border border-success shadow-sm card-hover">
@@ -62,21 +67,38 @@
                     </div>
                 </a>
             </div>
+            @endif
 
+            {{-- BOTÓN POR AUTORIZAR (Dinámico para Coordinador o Subdirector) --}}
+            @if(auth()->user()->role == 'coordinador' || auth()->user()->role == 'subdirector')
             <div class="col-md-6 col-lg-3">
-                <a href="#" class="text-decoration-none">
+                @php 
+                    // Si es coordinador va a una ruta, si es subdirector va a la otra
+                    $rutaAutorizar = (auth()->user()->role == 'coordinador') ? route('coordinador.index') : route('subdirector.index');
+                    $total = (auth()->user()->role == 'coordinador') ? $pendientesCoord : $pendientesSub; 
+                @endphp
+                
+                <a href="{{ $rutaAutorizar }}" class="text-decoration-none position-relative">
                     <div class="card h-100 border border-warning shadow-sm card-hover">
                         <div class="card-body text-center p-4">
                             <div class="bg-warning bg-opacity-10 rounded-circle p-4 d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="fas fa-comment-dots fa-3x text-warning"></i>
+                                <i class="fas fa-signature fa-3x text-warning"></i>
+                                
+                                @if($total > 0)
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-top: 20px; margin-left: -40px;">
+                                        {{ $total }}
+                                    </span>
+                                @endif
                             </div>
-                            <h5 class="card-title fw-bold text-dark mt-2">Observaciones</h5>
-                            <p class="card-text text-muted small">Ver novedades registradas</p>
+                            <h5 class="card-title fw-bold text-dark mt-2">Por Autorizar</h5>
+                            <p class="card-text text-muted small">Revisar y firmar agendas</p>
                         </div>
                     </div>
                 </a>
             </div>
+            @endif
 
+            {{-- BOTÓN REPORTES (Todos) --}}
             <div class="col-md-6 col-lg-3">
                 <a href="{{ route('reportes') }}" class="text-decoration-none">
                     <div class="card h-100 border border-info shadow-sm card-hover">
@@ -90,6 +112,7 @@
                     </div>
                 </a>
             </div>
+
         </div>
     </section>
 </div>

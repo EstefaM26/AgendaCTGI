@@ -22,9 +22,9 @@
                 <h5 class="mb-0 fw-bold text-dark">
                     Seleccione una agenda para reportar actividades
                 </h5>
-                <a href="{{ route('formulario') }}" class="btn btn-success btn-sm rounded-pill px-4 fw-bold" style="background-color: #448b5d; border: none;">
-                    Nueva Agenda
-                </a>
+                @if(auth()->user()->role == 'contratista')
+                    <a href="{{ route('formulario') }}" class="btn btn-success">Nueva Agenda</a>
+                @endif
             </div>
 
             <div class="card-body p-0">

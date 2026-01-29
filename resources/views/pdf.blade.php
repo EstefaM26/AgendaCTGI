@@ -1,432 +1,178 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <title>Formato Agenda Desplazamiento</title>
-  <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
-
   <style>
-    body {
-  background: #ccc;
-  /* fondo gris para ver márgenes */
-}
+    body { background: #ccc; font-family: Arial, sans-serif; }
+    .hoja { width: 210mm; min-height: 297mm; padding: 10mm; margin: auto; background: white; box-sizing: border-box; font-size: 11px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: -1px; }
+    td, th { border: 1px solid #000; padding: 3px; word-wrap: break-word; font-size: 10px; }
+    tr { page-break-inside: avoid; }
+    .barra td { background-color: #5f5f5f; color: white; text-align: center; font-weight: bold; padding: 8px; }
+    .enca td { text-align: center; font-weight: bold; background-color: #f2f2f2; }
+    .resaltado { font-weight: bold; text-align: center; }
+    .fecha-venc { font-weight: bold; vertical-align: top; height: 25px; }
 
-.hoja {
-  width: 210mm;
-  min-height: 297mm;
-  padding: 10mm;
-  margin: auto;
-  background: white;
-  box-sizing: border-box;
-  font-size: 11px;
-}
+    /* AJUSTE PARA QUE LA FIRMA NO SE SALGA */
+    .firma-img { 
+        max-width: 95%;     /* No permite que se salga a lo ancho */
+        max-height: 75px;    /* No permite que se salga a lo alto */
+        width: auto; 
+        height: auto; 
+        display: block; 
+        margin: 2px auto;    /* Centra la imagen en la celda */
+    }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-td, th {
-  border: 1px solid #000;
-  padding: 3px;
-  word-wrap: break-word;
-  font-size: 10px;
-}
-
-
-
-tr {
-  page-break-inside: avoid;
-}
-
-@media print {
-  .hoja {
-    margin: 0;
-    box-shadow: none;
-  }
-}
-
-.encabezado {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: Arial, sans-serif;
-}
-
-.encabezado td {
-  border: 1px solid black;
-  padding: 6px;
-  font-size: 12px;
-}
-
-.logo {
-  width: 75%;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.logo img {
-  width: 70px;
-}
-
-.centro {
-  width: 60%;
-}
-
-.info {
-  width: 25%;
-  text-align: center;
-}
-
-.barra td {
-  background-color: #5f5f5f;
-  color: white;
-  text-align: center;
-  font-weight: bold;
-  padding: 8px;
-}
-
-.enca td {
-  text-align: center;
-  font-weight: bold;
-}
-
-.nombre td {
-  text-align: center;
-}
-
-.datos-contrato {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: Arial, sans-serif;
-
-}
-
-.datos-contrato td {
-  border: 1px solid black;
-  padding: 6px;
-  font-size: 12px;
-  text-align: center;
-
-
-}
-
-.resaltado {
-  font-weight: bold;
-  text-align: center;
-}
-
-.nombre {
-  text-align: center;
-  font-weight: bold;
-}
-
-.fecha-venc {
-  text-align: left;
-  vertical-align: top;
-  font-weight: bold;
-  height: 25px;
-}
-
-.top-align {
-  vertical-align: top !important;
-}
-
-.tralalero td {
-  text-align: left;
-}
-
-
-
-
-
-
-
-
+    #btnPdf { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #39a900; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    @media print { #btnPdf { display: none; } .hoja { margin: 0; box-shadow: none; } }
   </style>
 </head>
-
 <body>
 
-  <div class="hoja">
-
-    <!-- ================= ENCABEZADO ================= -->
-    <table class="encabezado">
-      <!-- Fila 1 -->
+  <div class="hoja" id="area-pdf">
+    <table>
       <tr>
-        <td class="logo" rowspan="2" colspan="4">
-          <img src="{{ asset('img/logo-sena-verde.png') }}" alt="SENA">
+        <td colspan="4" rowspan="2" style="text-align: center;">
+          <img src="{{ asset('img/logo-sena-verde.png') }}" alt="SENA" width="70">
         </td>
-        <td class="info" colspan="20">Versión: 04</td>
+        <td colspan="20" style="text-align: center; font-weight: bold;">Versión: 04</td>
       </tr>
-
-      <!-- Fila 2 -->
       <tr>
-        <td class="info" colspan="20">
-          Código:<br>
-          GTH-F-090
-        </td>
+        <td colspan="20" style="text-align: center; font-weight: bold;">Código: GTH-F-090</td>
       </tr>
-
-      <!-- Barras -->
-      <tr class="barra">
-        <td colspan="24">GESTIÓN DE TALENTO HUMANO</td>
-      </tr>
-
-      <tr class="barra">
-        <td colspan="24">FORMATO AGENDA DESPLAZAMIENTO CONTRATISTA</td>
-      </tr>
+      <tr class="barra"><td colspan="24">GESTIÓN DE TALENTO HUMANO</td></tr>
+      <tr class="barra"><td colspan="24">FORMATO AGENDA DESPLAZAMIENTO CONTRATISTA</td></tr>
     </table>
 
-    <!-- ================= DATOS CONTRATO ================= -->
-    <table class="datos-contrato">
-      <!-- Fila Título -->
-      <tr class="enca">
-        <td colspan="24">DATOS DEL CONTRATISTA QUE SE DESPLAZA</td>
+    <table>
+      <tr class="enca"><td colspan="24">DATOS DEL CONTRATISTA QUE SE DESPLAZA</td></tr>
+      <tr>
+        <td colspan="12" class="fecha-venc">FECHA DE ELABORACIÓN DE AGENDA</td>
+        <td colspan="12" class="resaltado">{{ $agenda->fecha_elaboracion }}</td>
       </tr>
-
-      <!-- Fila Fecha Elaboración -->
-      <tr class="fecha-venc">
-        <td colspan="12">FECHA DE ELABORACIÓN DE AGENDA</td>
-        <td colspan="12">{{ $agenda->fecha_elaboracion ?? '' }}</td>
-      </tr>
-
-      <!-- Fila Nombres -->
       <tr class="resaltado">
         <td colspan="12">NOMBRES Y APELLIDOS</td>
         <td colspan="12">IDENTIFICACIÓN</td>
       </tr>
-      <!-- Fila 1 -->
       <tr>
-        <td colspan="12" class="resaltado nombre">
-          {{ $agenda->nombre_completo ?? '' }}
-        </td>
+        <td colspan="12" class="resaltado" style="font-size: 12px;">{{ $agenda->nombre_completo }}</td>
         <td colspan="2" class="resaltado">Tipo</td>
-        <td colspan="2" class="resaltado">{{ $agenda->tipo_documento ?? '' }}</td>
+        <td colspan="2" class="resaltado">{{ $agenda->tipo_documento }}</td>
         <td colspan="2" class="resaltado">No.</td>
-        <td colspan="6" class="resaltado">{{ $agenda->numero_documento ?? '' }}</td>
+        <td colspan="6" class="resaltado">{{ $agenda->numero_documento }}</td>
       </tr>
-
-      <!-- Fila 2 -->
-      <tr class="fila-contrato">
-        <td colspan="3" class="resaltado contrato">CONTRATO</td>
+      <tr>
+        <td colspan="3" class="resaltado">CONTRATO</td>
         <td colspan="2" class="resaltado">No.</td>
-        <td colspan="4" class="resaltado">{{ $agenda->numero_contrato ?? '' }}</td>
+        <td colspan="4" class="resaltado">{{ $agenda->numero_contrato }}</td>
         <td colspan="2" class="resaltado">AÑO</td>
-        <td colspan="2" class="resaltado">{{ $agenda->anio_contrato ?? '' }}</td>
-
-        <td colspan="4" class="fecha-venc" style="font-size: 8px; line-height: 1;">
-          FECHA<br>
-          VENCIMIENTO<br>
-          DEL CONTRATO
-        </td>
-        <td colspan="2" class="resaltado">{{ date('d', strtotime($agenda->fecha_vencimiento)) }}</td>
-        <td colspan="2" class="resaltado">{{ date('m', strtotime($agenda->fecha_vencimiento)) }}</td>
-        <td colspan="3" class="resaltado">{{ date('Y', strtotime($agenda->fecha_vencimiento)) }}</td>
+        <td colspan="2" class="resaltado">{{ $agenda->anio_contrato }}</td>
+        <td colspan="4" style="font-size: 8px; font-weight: bold;">FECHA VENCIMIENTO DEL CONTRATO</td>
+        <td colspan="7" class="resaltado">{{ $agenda->fecha_vencimiento }}</td>
       </tr>
-
-
       <tr>
         <td colspan="4" class="fecha-venc">OBJETO CONTRACTUAL:</td>
-        <td colspan="20">{{ $agenda->objetivo_contractual ?? '' }}</td>
+        <td colspan="20" style="font-size: 8px;">{{ $agenda->objetivo_contractual }}</td>
       </tr>
-
       <tr>
-        <td colspan="4" class="fecha-venc">DIRECCIÓN GENERAL/<br>REGIONAL</td>
-        <td colspan="8" class="fecha-venc">{{ $agenda->direccion_general ?? '' }}</td>
-        <td colspan="4">DEPENDENCIA/<br>CENTRO</td>
-        <td colspan="8">{{ $agenda->dependencia_centro ?? '' }}</td>
+        <td colspan="4" class="fecha-venc">DIRECCIÓN GENERAL/ REGIONAL</td>
+        <td colspan="8">{{ $agenda->direccion_general ?? 'ANTIOQUIA' }}</td>
+        <td colspan="4" class="fecha-venc">DEPENDENCIA/ CENTRO</td>
+        <td colspan="8">{{ $agenda->dependencia_centro ?? 'CENTRO TEXTIL Y DE GESTION INDUSTRIAL' }}</td>
       </tr>
-
       <tr>
-        <td colspan="4" class="fecha-venc">NOMBRE DEL ORDENADOR DEL GASTO (de la Movilización)</td>
-        <td colspan="8" class="fecha-venc">DERLYS MARGOTH MADERA SOTO</td>
+        <td colspan="4" class="fecha-venc">NOMBRE DEL ORDENADOR DEL GASTO</td>
+        <td colspan="8">DERLYS MARGOTH MADERA SOTO</td>
         <td colspan="4" class="fecha-venc">CARGO</td>
-        <td colspan="8" class="fecha-venc">SUBDIRECTOR ENCARGADA</td>
+        <td colspan="8">SUBDIRECTOR ENCARGADA</td>
       </tr>
-
       <tr>
         <td colspan="4" class="fecha-venc">NOMBRE DEL SUPERVISOR(A) DEL CONTRATO</td>
-        <td colspan="8" class="fecha-venc">FREDDY CAMACHO GARCÍA</td>
+        <td colspan="8">FREDDY CAMACHO GARCÍA</td>
         <td colspan="4" class="fecha-venc">CARGO</td>
-        <td colspan="8" class="fecha-venc">COORDINADOR ACADEMICO</td>
+        <td colspan="8">COORDINADOR ACADEMICO</td>
       </tr>
 
-      <tr class="enca">
-        <td colspan="24">INFORMACIÓN DEL DESPLAZAMIENTO</td>
-      </tr>
-
+      <tr class="enca"><td colspan="24">INFORMACIÓN DEL DESPLAZAMIENTO</td></tr>
       <tr>
         <td colspan="4" class="fecha-venc">RUTA</td>
-        <td colspan="20" class="fecha-venc">{{ $agenda->ruta }}</td>
+        <td colspan="20" class="resaltado">{{ $agenda->ruta }}</td>
       </tr>
-
       <tr>
-        <td colspan="4">DIRECCIÓN GENERAL/<br>REGIONAL</td>
-        <td colspan="8">{{ $agenda->direccion_general }}</td>
-        <td colspan="4">DEPENDENCIA/<br>CENTRO</td>
-        <td colspan="8">{{ $agenda->dependencia_centro }}</td>
-      </tr>
-
-      <tr>
-        <td colspan="4">CIUDAD/DEPARTAMENTO O <br> MUNICIPIO/DEPARTAMENTO <br> O CIUDAD/PAIS</td>
+        <td colspan="4" class="fecha-venc">CIUDAD/MUNICIPIO DESTINO</td>
         <td colspan="5">{{ $agenda->ciudad_destino }}</td>
-        <td colspan="3">ENTIDAD O <br> EMPRESA: </td>
+        <td colspan="3" class="resaltado">ENTIDAD O EMPRESA:</td>
         <td colspan="4">{{ $agenda->entidad_empresa }}</td>
-        <td colspan="2">CONTACTO</td>
+        <td colspan="2" class="resaltado">CONTACTO</td>
         <td colspan="6">{{ $agenda->contacto }}</td>
       </tr>
-
-
-      @php
-        use Carbon\Carbon;
-        $inicio = Carbon::parse($agenda->fecha_inicio_desplazamiento);
-        $fin = Carbon::parse($agenda->fecha_fin_desplazamiento);
-      @endphp
-
-
       <tr>
-        <td colspan="4">FECHA INICIO DEL <br> DESPLAZAMIENTO</td>
-        <td colspan="2" class="resaltado">{{ $inicio->day }}</td>
-        <td colspan="1" class="resaltado">{{ $inicio->month }}</td>
-        <td colspan="2" class="resaltado">{{ $inicio->year }}</td>
-
-        <td colspan="3">FECHA FIN <br> DESPLAZAMIENTO</td>
-        <td colspan="4" class="resaltado">{{ $fin->day }}</td>
-        <td colspan="2" class="resaltado">{{ $fin->month }}</td>
-        <td colspan="6" class="resaltado">{{ $fin->year }}</td>
+        <td colspan="4" class="fecha-venc">FECHA INICIO</td>
+        <td colspan="8" class="resaltado">{{ $agenda->fecha_inicio_desplazamiento }}</td>
+        <td colspan="4" class="fecha-venc">FECHA FIN</td>
+        <td colspan="8" class="resaltado">{{ $agenda->fecha_fin_desplazamiento }}</td>
       </tr>
-
       <tr>
         <td colspan="4" class="fecha-venc">OBJETIVO DEL DESPLAZAMIENTO</td>
         <td colspan="20">{{ $agenda->objetivo_desplazamiento }}</td>
       </tr>
-
-      <tr>
-        <td colspan="24" class="fecha-venc">OBLIGACIONES DEL CONTRATO</td>
-      </tr>
-
-      @if(!empty($agenda->obligaciones_contrato))
-        @foreach ($agenda->obligaciones_contrato as $index => $obligacion)
-          <tr>
-            <td colspan="1">{{ $index + 1 }}</td>
-            <td colspan="23">{{ $obligacion }}</td>
-          </tr>
-        @endforeach
-      @endif
-
-      <!-- <tr>
-        <td colspan="1">1</td>
-        <td colspan="23">Cumplir a cabalidad el objeto del contrato en los programas y niveles de formación en el Centro
-          Textil y de Gestión Industrial con seriedad, responsabilidad, profesionalismo, eficiencia, oportunidad y
-          calidad de conformidad con la necesidad del servicio.</td>
-      </tr>
-
-      <tr>
-        <td colspan="1">2</td>
-        <td colspan="23">Diseñar, programar y ejecutar las estrategias de enseñanza - aprendizaje – evaluación
-          correspondiente al programa y nivel de formación profesional bajo el enfoque metodológico adoptado por el SENA
-          y según orientaciones de la Coordinación Académica.</td>
-      </tr>
-
-      <tr>
-        <td colspan="1">3</td>
-        <td colspan="23">Cumplir a cabalidad el objeto del contrato en los programas y niveles de formación en el Centro
-          Textil y de Gestión Industrial con seriedad, responsabilidad, profesionalismo, eficiencia, oportunidad y
-          calidad de conformidad con la necesidad del servicio.</td>
-      </tr> -->
-
-      <tr>
-        <td colspan="24" class="fecha-venc">AGENDA</td>
-      </tr>
-
-      <tr>
-        <td colspan="24" class="fecha-venc">ACTIVIDADES ( (Deberá contener información detallada de las tareas a
-          realizar día a día)</td>
-      </tr>
-
+      
+      <tr class="enca"><td colspan="24">AGENDA DE ACTIVIDADES</td></tr>
       @foreach ($agenda->actividades as $index => $actividad)
-        <tr class="tralalero">
-          <td colspan="24">
-            Día {{ $index + 1 }}: {{ $actividad->fecha_reporte->format('d/m/Y') }}<br>
-            Desplazamientos ruta de ida: {{ $actividad->ruta_ida }}<br>
-            Medio de transporte:
-            {{ is_array($actividad->medios_transporte) ? implode(', ', $actividad->medios_transporte) : $actividad->medios_transporte }}<br>
-            Actividades a ejecutar: {{ $actividad->actividades_ejecutar }}<br>
-            Desplazamientos Internos: {{ $actividad->desplazamientos_internos ?? 'N/A' }}<br>
-            desplazamientos Ruta de regreso: {{ $actividad->ruta_regreso }}<br><br>
-
-            Observaciones: {{ $actividad->observaciones ?? 'Ninguna' }}
-          </td>
-        </tr>
+      <tr>
+        <td colspan="24" style="text-align: left; padding: 10px;">
+          <strong>Día {{ $index + 1 }}:</strong> {{ \Carbon\Carbon::parse($actividad->fecha_reporte)->format('d/m/Y') }}<br>
+          <strong>Ruta ida:</strong> {{ $actividad->ruta_ida }} | <strong>Ruta regreso:</strong> {{ $actividad->ruta_regreso }}<br>
+          <strong>Transporte:</strong> {{ is_array($actividad->medios_transporte) ? implode(', ', $actividad->medios_transporte) : $actividad->medios_transporte }}<br>
+          <strong>Actividades:</strong> {{ $actividad->actividades_ejecutar }}
+        </td>
+      </tr>
       @endforeach
 
-      <tr>
-        <td colspan="24" class="enca">FIRMAS</td>
-      </tr>
-
-      <tr style="height: 80px;">
-        <td colspan="8" class="fecha-venc">FIRMA ORDENADOR DE GASTO:
-          @if(!empty($data['firma']))
-            <img src="{{ asset('storage/' . $data['firma_ordenador']) }}" height="70">
-          @endif
-
-
-        </td>
-        <td colspan="8" class="fecha-venc">FIRMA SUPERVISOR DEL CONTRATO :
-          @if(!empty($data['firma']))
-            <img src="{{ asset('storage/' . $data['firma_supervisor']) }}" height="70">
+      <tr class="enca"><td colspan="24">FIRMAS</td></tr>
+      <tr style="height: 100px;"> <td colspan="8" class="fecha-venc" style="vertical-align: top;">
+          FIRMA ORDENADOR DE GASTO:
+          @if($agenda->estado == 'APROBADA_SUBDIRECTOR' && $agenda->firma_ordenador)
+            <img src="{{ asset('storage/' . $agenda->firma_ordenador) }}" class="firma-img">
           @endif
         </td>
-        <td colspan="8" rowspan="2" class="fecha-venc">FIRMA DEL CONTRATISTA:
+        <td colspan="8" class="fecha-venc" style="vertical-align: top;">
+          FIRMA SUPERVISOR DEL CONTRATO:
+          @if($agenda->firma_supervisor)
+            <img src="{{ asset('storage/' . $agenda->firma_supervisor) }}" class="firma-img">
+          @endif
+        </td>
+        <td colspan="8" class="fecha-venc" style="vertical-align: top;">
+          FIRMA DEL CONTRATISTA:
           @if($agenda->firma_contratista)
-            <img src="{{ asset('storage/' . $agenda->firma_contratista) }}" style="width:150px; height:auto;">
+            <img src="{{ asset('storage/' . $agenda->firma_contratista) }}" class="firma-img">
           @endif
         </td>
       </tr>
-
-      <tr style="height: 60px;">
-        <td colspan="8" class="fecha-venc">Nombres y Apellidos:</td>
-        <td colspan="8" class="fecha-venc">Nombres y Apellidos:</td>
+      <tr style="height: 40px;">
+        <td colspan="8">DERLYS MARGOTH MADERA SOTO<br>Subdirector(a) Encargado(a)</td>
+        <td colspan="8">FREDDY CAMACHO GARCÍA<br>Coordinador Académico</td>
+        <td colspan="8">{{ $agenda->nombre_completo }}<br>Contratista</td>
       </tr>
-
-      <tr style="height: 60px;">
-        <td colspan="8" class="fecha-venc">
-          Cargo: SUBDIRECTOR ENCARGADO<br>
-          DERLYS MARGOTH MADERA SOTO
-        </td>
-        <td colspan="8" class="fecha-venc" style="height: 80px; text-align:center;">
-          Cargo: COORDINADOR ACADEMICO<br>
-          FREDDY CAMACHO GARCÍA
-          @if(!empty($data['firma']))
-            <img src="{{ asset('storage/' . $data['firma']) }}" height="70">
-          @endif
-        </td>
-        <td colspan="8" class="fecha-venc">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <span>Nombres y Apellidos:</span>
-            <span style="font-weight: bold;">DIANA</span>
-          </div>
-          JANETH BOLIVAR
-        </td>
-      </tr>
-
-      <tr>
-        <td colspan="24" style="text-align: right; font-size: 10px;">GTH-F-090 V.04</td>
-      </tr>
-
-
     </table>
-
-
+    <div style="text-align: right; font-size: 9px; margin-top: 5px;">GTH-F-090 V.04</div>
   </div>
 
-  <button id="btnPdf">Generar PDF</button>
-
+  <button id="btnPdf">Descargar PDF Formateado</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="{{ asset('js/scripts.js') }}"></script>
+  <script>
+    document.getElementById('btnPdf').addEventListener('click', function() {
+      const element = document.getElementById('area-pdf');
+      html2pdf().from(element).set({
+        margin: 5,
+        filename: 'Agenda_SENA_{{ $agenda->id }}.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 3, useCORS: true }, 
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+      }).save();
+    });
+  </script>
 </body>
-
 </html>
