@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Llaves CTGI</title>
+        <title>Agendas</title>
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
@@ -13,11 +13,8 @@
             <div class="row min-vh-100 g-0">
                 <div class="col-12 col-lg-6 bg-light d-flex align-items-center justify-content-center">
                     <div class="text-center p-4 p-lg-5">
-                        <img src="{{ asset('images/sena/logo250.png') }}" alt="SENA" class="img-fluid w-75 mb-3">
-                        <h2 class="h4 fw-bold mb-2 text-success">Llaves CTGI</h2>
-                        <p class="text-muted mb-0">
-                            Gestiona ambientes, instructores y prestamos en un solo lugar.
-                        </p>
+                        <img src="{{ asset('images/sena/logo250.png') }}" alt="SENA" class="img-fluid w-900 mb-3">
+                        <h2 class="h4 fw-bold mb-2 text-success">Agendas</h2>
                     </div>
                 </div>
                 <div class="col-12 col-lg-6 bg-white d-flex align-items-center py-5">
