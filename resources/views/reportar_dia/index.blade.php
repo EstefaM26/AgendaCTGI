@@ -47,16 +47,44 @@
                                         <td>{{ $agenda->fecha_fin_desplazamiento }}</td>
                                         <td>
                                             @php
-                                                $badgeClass = match ($agenda->estado) {
-                                                    'ENVIADA' => 'bg-info text-dark',
-                                                    'APROBADA' => 'bg-success',
-                                                    'RECHAZADA' => 'bg-danger',
-                                                    default => 'bg-secondary'
+                                                $statusInfo = match ($agenda->estado) {
+                                                    'ENVIADA' => [
+                                                        'class' => 'bg-info text-dark',
+                                                        'label' => 'Enviado',
+                                                        'desc' => 'Esperando que el supervisor la revise'
+                                                    ],
+                                                    'APROBADA' => [
+                                                        'class' => 'bg-success',
+                                                        'label' => 'Aprobada',
+                                                        'desc' => 'Agenda aprobada satisfactoriamente'
+                                                    ],
+                                                    'RECHAZADA' => [
+                                                        'class' => 'bg-danger',
+                                                        'label' => 'Rechazada',
+                                                        'desc' => 'Requiere correcciones'
+                                                    ],
+                                                    'REVISION' => [
+                                                        'class' => 'bg-warning text-dark',
+                                                        'label' => 'Revisión',
+                                                        'desc' => 'El supervisor de planta se encuentra revisando la agenda'
+                                                    ],
+                                                    default => [
+                                                        'class' => 'bg-secondary',
+                                                        'label' => $agenda->estado,
+                                                        'desc' => 'Estado desconocido'
+                                                    ]
                                                 };
                                             @endphp
-                                            <span class="badge {{ $badgeClass }} rounded-pill px-3">
-                                                {{ $agenda->estado }}
-                                            </span>
+                                            <div class="d-flex flex-column">
+                                                <span
+                                                    class="badge {{ $statusInfo['class'] }} rounded-pill px-3 mb-1 w-fit-content"
+                                                    style="width: fit-content;">
+                                                    {{ $statusInfo['label'] }}
+                                                </span>
+                                                <small class="text-muted" style="font-size: 0.75rem; line-height: 1;">
+                                                    {{ $statusInfo['desc'] }}
+                                                </small>
+                                            </div>
                                         </td>
                                         <td class="text-end pe-4">
                                             <a href="{{ route('reportar-dia.show', $agenda->id) }}"

@@ -40,9 +40,8 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Día a reportar</label>
-                                    <input type="date" name="fecha_reporte" class="form-control"
-                                        min="{{ $agenda->fecha_inicio_desplazamiento }}"
-                                        max="{{ $agenda->fecha_fin_desplazamiento }}" required>
+                                    <input type="date" name="fecha_reporte" class="form-control" min="{{ $proximaFecha }}"
+                                        max="{{ $agenda->fecha_fin_desplazamiento }}" value="{{ $proximaFecha }}" required>
 
                                     <label class="form-label mt-2 fw-bold">Ruta</label>
                                     <input type="text" class="form-control bg-light" value="{{ $agenda->ruta }}" readonly>

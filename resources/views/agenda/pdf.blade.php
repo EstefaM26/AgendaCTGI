@@ -16,7 +16,19 @@
       <!-- Fila 1 -->
       <tr>
         <td class="logo" rowspan="2" colspan="4">
-          <img src="{{ asset('images/sena/logoSena.png') }}" alt="SENA">
+          @php
+            $logoPath = public_path('images/sena/logoSena.png');
+            $logoBase64 = '';
+            if (file_exists($logoPath)) {
+              $logoData = file_get_contents($logoPath);
+              $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+            }
+          @endphp
+          @if($logoBase64)
+            <img src="{{ $logoBase64 }}" alt="SENA">
+          @else
+            <img src="{{ asset('images/sena/logoSena.png') }}" alt="SENA">
+          @endif
         </td>
         <td class="info" colspan="20">Versión: 04</td>
       </tr>
@@ -228,20 +240,51 @@
 
       <tr style="height: 80px;">
         <td colspan="8" class="fecha-venc">FIRMA ORDENADOR DE GASTO:
-          @if(!empty($data['firma']))
-            <img src="{{ asset('storage/' . $data['firma_ordenador']) }}" height="70">
+          @if(!empty($agenda->firma_ordenador))
+            @php
+              $path = storage_path('app/public/' . $agenda->firma_ordenador);
+              $base64 = '';
+              if (file_exists($path)) {
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $data = file_get_contents($path);
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+              }
+            @endphp
+            @if($base64)
+              <img src="{{ $base64 }}" height="70">
+            @endif
           @endif
-
-
         </td>
         <td colspan="8" class="fecha-venc">FIRMA SUPERVISOR DEL CONTRATO :
-          @if(!empty($data['firma']))
-            <img src="{{ asset('storage/' . $data['firma_supervisor']) }}" height="70">
+          @if(!empty($agenda->firma_supervisor))
+            @php
+              $path = storage_path('app/public/' . $agenda->firma_supervisor);
+              $base64 = '';
+              if (file_exists($path)) {
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $data = file_get_contents($path);
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+              }
+            @endphp
+            @if($base64)
+              <img src="{{ $base64 }}" height="70">
+            @endif
           @endif
         </td>
         <td colspan="8" rowspan="2" class="fecha-venc">FIRMA DEL CONTRATISTA:
-          @if($agenda->firma_contratista)
-            <img src="{{ asset('storage/' . $agenda->firma_contratista) }}" style="width:150px; height:auto;">
+          @if(!empty($agenda->firma_contratista))
+            @php
+              $path = storage_path('app/public/' . $agenda->firma_contratista);
+              $base64 = '';
+              if (file_exists($path)) {
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $data = file_get_contents($path);
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+              }
+            @endphp
+            @if($base64)
+              <img src="{{ $base64 }}" style="width:150px; height:auto;">
+            @endif
           @endif
         </td>
       </tr>
@@ -259,16 +302,12 @@
         <td colspan="8" class="fecha-venc" style="height: 80px; text-align:center;">
           Cargo: COORDINADOR ACADEMICO<br>
           FREDDY CAMACHO GARCÍA
-          @if(!empty($data['firma']))
-            <img src="{{ asset('storage/' . $data['firma']) }}" height="70">
-          @endif
         </td>
         <td colspan="8" class="fecha-venc">
           <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <span>Nombres y Apellidos:</span>
-            <span style="font-weight: bold;">DIANA</span>
+            <span style="font-weight: bold;">{{ $agenda->nombre_completo }}</span>
           </div>
-          JANETH BOLIVAR
         </td>
       </tr>
 

@@ -152,28 +152,8 @@
                 </svg>
                 <span>Reportar Dias</span>
             </a>
-            <a href="{{ route('reportar-dia') }}"
-                class="nav-link px-2 py-2 rounded {{ request()->routeIs('reportar-dia*') ? 'bg-success text-white shadow-sm' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="7" y="4" width="10" height="16" rx="2" />
-                    <path d="M9 4V2h6v2" />
-                    <path d="M9 10h6" />
-                    <path d="M9 14h6" />
-                </svg>
-                <span>Estado Agenda</span>
-            </a>
-            <a href="{{ route('formulario') }}"
-                class="nav-link px-2 py-2 rounded {{ request()->routeIs('formulario') ? 'bg-success text-white shadow-sm' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M4 20h16" />
-                    <path d="M7 16v-6" />
-                    <path d="M12 16v-9" />
-                    <path d="M17 16v-3" />
-                </svg>
-                <span>Reportes</span>
-            </a>
+            
+            
         </nav>
         <div class="mt-auto">
             <form method="POST" action="{{ route('logout') }}">
@@ -189,7 +169,7 @@
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu"
         style="--bs-offcanvas-width: 20rem; background: #fff;">
         <div class="offcanvas-header">
-            <a href="{{ route('dashboard') }}" class="text-decoration-none">
+            <a href="{{ route('redirect') }}" class="text-decoration-none">
                 <img src="{{ asset('images/sena/logo250.png') }}" class="brand-logo" alt="SENA"
                     style="max-width: 100px;">
             </a>
