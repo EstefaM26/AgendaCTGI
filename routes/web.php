@@ -7,13 +7,12 @@ use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\FormularioController;
 use App\Http\Controllers\SubdirectorController;
+use App\Http\Controllers\ViaticosController; 
+use App\Http\Controllers\AprobacionController;
 
 // --- RUTAS PÚBLICAS (Invitados) ---
 Route::middleware('guest')->group(function () {
-    // Redirigir la raíz al login o bienvenida
     Route::get('/', function () { return view('auth.login'); });
-    
-    // Rutas de Login
     Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
 });
@@ -21,7 +20,7 @@ Route::middleware('guest')->group(function () {
 // --- RUTAS PROTEGIDAS (Solo usuarios logueados) ---
 Route::middleware('auth')->group(function () {
 
-    // 1. INICIO DINÁMICO (El que maneja los 3 roles)
+    // 1. INICIO DINÁMICO
     Route::get('/inicio', [DashboardController::class, 'index'])->name('inicio');
 
     // 2. CERRAR SESIÓN
@@ -34,21 +33,29 @@ Route::middleware('auth')->group(function () {
     // 4. PDF
     Route::get('/ver-pdf/{id}', [AgendaController::class, 'verPdf'])->name('agenda.pdf');
 
-    // 5. REPORTES
+    // 5. REPORTES (Historial General)
     Route::get('/reportes', [ReportesController::class, 'index'])->name('reportes');
     Route::get('/reportes-detalle/{agenda}', [ReportesController::class, 'show'])->name('reportes.show');
     Route::post('/reportes-detalle/{agenda}/guardar', [ReportesController::class, 'store'])->name('actividades.store');
 
-    // 6. RUTAS DE APROBACIÓN (Próximamente para Coordinador y Subdirector)
-    // Rutas para el Coordinador
-    Route::get('/por-autorizar', [App\Http\Controllers\AprobacionController::class, 'index'])->name('coordinador.index');
-    Route::post('/autorizar-agenda/{id}', [App\Http\Controllers\AprobacionController::class, 'autorizar'])->name('agenda.autorizar');
-    // Route::get('/revisar/{id}', [AprobacionController::class, 'revisar'])->name('agenda.revisar');
-    Route::post('/autorizar-agenda/{id}', [App\Http\Controllers\AprobacionController::class, 'autorizar'])->name('agenda.autorizar');
+    // 6. RUTAS DE COORDINADOR
+    Route::get('/por-autorizar', [AprobacionController::class, 'index'])->name('coordinador.index');
+    Route::post('/autorizar-agenda/{id}', [AprobacionController::class, 'autorizar'])->name('agenda.autorizar');
 
-    // Rutas para el Subdirector
-    // Panel del Subdirector
+    // 7. RUTAS DE SUBDIRECTOR
     Route::get('/subdirector/bandeja', [SubdirectorController::class, 'index'])->name('subdirector.index');
-    // Acción de firmar
     Route::post('/subdirector/firmar/{id}', [SubdirectorController::class, 'autorizar'])->name('subdirector.autorizar');
+
+    // 8. RUTAS EXCLUSIVAS DE VIÁTICOS (Ubicadas aquí o en su middleware propio)
+    Route::middleware(['role:viaticos'])->group(function () {
+        // Bandeja de entrada de viáticos
+        Route::get('/viaticos/bandeja', [ViaticosController::class, 'index'])->name('viaticos.index');
+        
+        // Vista de gestión (La pantalla dividida)
+        Route::get('/viaticos/gestionar/{id}', [ViaticosController::class, 'gestionar'])->name('viaticos.gestionar');
+        
+        // Proceso de aprobación o devolución
+        Route::post('/viaticos/procesar/{id}', [ViaticosController::class, 'procesar'])->name('viaticos.procesar');
+    });
+
 });

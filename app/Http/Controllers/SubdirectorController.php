@@ -11,13 +11,13 @@ class SubdirectorController extends Controller
 {
     /**
      * Muestra la bandeja de entrada del Subdirector.
-     * Solo agendas con visto bueno del Coordinador.
+     * Ahora el filtro cambia: Solo ve agendas con estado 'LIQUIDADA'
      */
     public function index()
     {
-        // Traemos las agendas con estado 'APROBADA_COORDINADOR'
-        // Ordenadas por la más reciente para facilitar el trabajo
-        $agendas = AgendaDesplazamiento::where('estado', 'APROBADA_COORDINADOR')
+        // CAMBIO CLAVE: Antes era 'APROBADA_COORDINADOR', ahora es 'LIQUIDADA'
+        // Esto asegura que la Subdirectora sea la ÚLTIMA en firmar, después de Viáticos.
+        $agendas = AgendaDesplazamiento::where('estado', 'LIQUIDADA')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -44,7 +44,7 @@ class SubdirectorController extends Controller
         // 3. Procesar la firma y actualizar estado
         if ($request->hasFile('firma_ordenador')) {
             
-            // Si ya existía una firma anterior (por re-intento), la eliminamos para no llenar el servidor
+            // Si ya existía una firma anterior, la eliminamos
             if ($agenda->firma_ordenador) {
                 Storage::disk('public')->delete($agenda->firma_ordenador);
             }
@@ -53,7 +53,7 @@ class SubdirectorController extends Controller
             $rutaFirma = $request->file('firma_ordenador')->store('firmas_subdirector', 'public');
             
             $agenda->update([
-                'estado' => 'APROBADA_SUBDIRECTOR', // Estado final del flujo
+                'estado' => 'APROBADA_SUBDIRECTOR', // Estado final y definitivo
                 'firma_ordenador' => $rutaFirma,
             ]);
 

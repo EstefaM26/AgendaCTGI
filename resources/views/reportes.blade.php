@@ -4,7 +4,7 @@
 <div class="py-4">
     <div class="container-fluid px-md-5 overflow-hidden">
 
-        {{-- SECCIÓN DEL TÍTULO (Más ancha horizontalmente) --}}
+        {{-- SECCIÓN DEL TÍTULO --}}
         <div class="mt-3">
             <div class="card border shadow-sm mb-4">
                 <div class="card-body d-flex align-items-center justify-content-center py-3">
@@ -37,7 +37,7 @@
                                 <th class="py-3">Ruta</th>
                                 <th class="py-3">Fecha de inicio</th>
                                 <th class="py-3">Fecha final</th>
-                                <th class="py-3 text-center">Estado</th>
+                                <th class="py-3 text-center" style="width: 250px;">Estado</th>
                                 <th class="text-end pe-4 py-3">Acciones</th>
                             </tr>
                         </thead>
@@ -68,29 +68,35 @@
                                     </td>
 
                                     <td class="text-center">
-                                        @php
-                                            // Si el estado es null o vacío, mostrar 'ENVIADA' por defecto
-                                            $estadoAMostrar = $agenda->estado ?: 'ENVIADA';
-                                            
-                                            // Colores dinámicos basados en el estado real
-                                            $colores = match(strtoupper($estadoAMostrar)) {
-                                                'APROBADA' => ['bg' => '#d1fae5', 'text' => '#065f46'],
-                                                'RECHAZADA' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
-                                                default     => ['bg' => '#7dd3f7', 'text' => '#0c4a6e'], // Azul claro estilo "ENVIADA"
-                                            };
-                                        @endphp
+                                        {{-- LÓGICA DE DEVOLUCIÓN --}}
+                                        @if($agenda->estado == 'ENVIADA' && $agenda->observaciones_finanzas)
+                                            <div class="alert alert-danger mb-0 py-1 px-2 shadow-sm" style="font-size: 0.75rem; border-left: 4px solid #dc3545;">
+                                                <strong class="d-block text-uppercase"><i class="fas fa-undo-alt me-1"></i> Devuelta</strong>
+                                                <span class="text-dark">{{ $agenda->observaciones_finanzas }}</span>
+                                            </div>
+                                        @else
+                                            @php
+                                                $estadoAMostrar = $agenda->estado ?: 'ENVIADA';
+                                                $colores = match(strtoupper($estadoAMostrar)) {
+                                                    'APROBADA_COORDINADOR', 'LIQUIDADA' => ['bg' => '#d1fae5', 'text' => '#065f46'],
+                                                    'APROBADA_SUBDIRECTOR' => ['bg' => '#39a900', 'text' => '#ffffff'],
+                                                    'RECHAZADA' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
+                                                    default     => ['bg' => '#7dd3f7', 'text' => '#0c4a6e'],
+                                                };
+                                            @endphp
 
-                                        <span class="badge rounded px-3 py-2 text-uppercase" 
-                                              style="background-color: {{ $colores['bg'] }}; color: {{ $colores['text'] }}; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.5px;">
-                                            {{ $estadoAMostrar }}
-                                        </span>
+                                            <span class="badge rounded px-3 py-2 text-uppercase" 
+                                                  style="background-color: {{ $colores['bg'] }}; color: {{ $colores['text'] }}; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.5px;">
+                                                {{ str_replace('_', ' ', $estadoAMostrar) }}
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td class="text-end pe-4">
                                         <div class="d-flex justify-content-end gap-2">
                                             <a href="{{ route('reportes.show', $agenda->id) }}"
-                                               class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
-                                                Reportar
+                                               class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold shadow-sm">
+                                                {{ ($agenda->estado == 'ENVIADA' && $agenda->observaciones_finanzas) ? 'Corregir' : 'Reportar' }}
                                             </a>
 
                                             <a href="{{ route('agenda.pdf', $agenda->id) }}" 

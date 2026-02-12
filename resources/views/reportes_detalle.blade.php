@@ -3,132 +3,151 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Reportar Día</h2>
-        <a href="{{ route('reportes') }}" class="btn btn-outline-secondary rounded-pill px-4">
-            <i class="fas fa-arrow-left me-1"></i> Volver a la lista
+        <h2 class="fw-bold text-dark">Detalle de Actividades</h2>
+        {{-- Se cambió route() por url() para evitar el error de ruta no definida --}}
+        <a href="{{ url('/reportes') }}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fas fa-arrow-left me-1"></i> Volver al Historial
         </a>
     </div>
 
+    {{-- SECCIÓN: ALERTA DE DEVOLUCIÓN POR VIÁTICOS --}}
+    @if($agenda->estado == 'ENVIADA' && $agenda->observaciones_finanzas)
+        <div class="alert alert-danger border-start border-danger border-4 shadow-sm mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x me-3 text-danger"></i>
+                <div>
+                    <h5 class="fw-bold mb-1">Agenda Devuelta para Corrección</h5>
+                    <p class="mb-0 text-dark">{{ $agenda->observaciones_finanzas }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="card shadow-sm border-0 rounded-4 mb-5">
-        <div class="card-header text-white fw-bold py-3 px-4" style="background-color: #4b8a5f; border-radius: 15px 15px 0 0;">
-            <i class="fas fa-info-circle me-2"></i> Detalles de Actividades para la Agenda #{{ $agenda->id }}
+        <div class="card-header text-white fw-bold py-3 px-4" style="background-color: #39a900; border-radius: 15px 15px 0 0;">
+            <i class="fas fa-info-circle me-2"></i> Información de la Agenda #{{ $agenda->id }}
         </div>
         <div class="card-body p-4">
-            {{-- Formulario de Registro --}}
-            <form action="{{ route('actividades.store', $agenda->id) }}" method="POST">
-                @csrf
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Día a reportar</label>
-                        <input type="date" name="fecha_reporte" class="form-control" required>
-                        
-                        <label class="form-label fw-bold mt-3">Ruta de Ida (Desplazamientos)</label>
-                        <input type="text" name="ruta_ida" class="form-control bg-light" value="MEDELLÍN - {{ $agenda->municipio_destino }} - MEDELLÍN" readonly>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Medio de transporte</label>
-                        <div class="d-flex gap-4 mt-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="medios_transporte[]" value="Aéreo" id="aereo">
-                                <label class="form-check-label" for="aereo">Aéreo</label>
+            
+            {{-- FORMULARIO DE REGISTRO (Para Contratistas o Administradores en estado ENVIADA) --}}
+            @php $userRole = auth()->user()->role; @endphp
+            @if(($userRole == 'contratista' || $userRole == 'administrador') && $agenda->estado == 'ENVIADA')
+                <div class="bg-light p-4 rounded-4 mb-5 border">
+                    <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle me-1"></i> Registrar Nueva Actividad</h5>
+                    <form action="{{ route('actividades.store', $agenda->id) }}" method="POST">
+                        @csrf
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Día a reportar</label>
+                                <input type="date" name="fecha_reporte" class="form-control" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="medios_transporte[]" value="Terrestre" id="terrestre">
-                                <label class="form-check-label" for="terrestre">Terrestre</label>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Medio de transporte</label>
+                                <div class="d-flex gap-3 mt-2">
+                                    @foreach(['Aéreo', 'Terrestre', 'Fluvial'] as $medio)
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="medios_transporte[]" value="{{ $medio }}" id="m_{{ $medio }}">
+                                            <label class="form-check-label" for="m_{{ $medio }}">{{ $medio }}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="medios_transporte[]" value="Fluvial" id="fluvial">
-                                <label class="form-check-label" for="fluvial">Fluvial</label>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Actividades ejecutadas</label>
+                                <textarea name="actividades_ejecutar" class="form-control" rows="3" placeholder="Describa lo realizado..." required></textarea>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Desplazamientos Internos</label>
+                                <input type="text" name="desplazamientos_internos" class="form-control" placeholder="Lugar o N/A">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn text-white w-100 fw-bold py-3 shadow-sm" style="background-color: #39a900; border-radius: 10px;">
+                            <i class="fas fa-save me-2"></i> GUARDAR ACTIVIDAD
+                        </button>
+                    </form>
+                </div>
+            @endif
+
+            {{-- TABLA DE ACTIVIDADES REGISTRADAS --}}
+            <div class="mt-2">
+                <h5 class="fw-bold text-dark mb-3">Actividades Reportadas</h5>
+                <div class="table-responsive shadow-sm rounded-3">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 15%;">Fecha</th>
+                                <th style="width: 45%;">Actividad</th>
+                                <th style="width: 20%;">Transporte</th>
+                                <th style="width: 20%;">Despl. Internos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($agenda->actividades as $act)
+                                <tr>
+                                    <td class="fw-bold text-primary">
+                                        {{ is_object($act->fecha_reporte) ? $act->fecha_reporte->format('d/m/Y') : date('d/m/Y', strtotime($act->fecha_reporte)) }}
+                                    </td>
+                                    <td>{{ $act->actividades_ejecutar }}</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">
+                                            {{ is_array($act->medios_transporte) ? implode(', ', $act->medios_transporte) : $act->medios_transporte }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $act->desplazamientos_internos ?? 'N/A' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-3x d-block mb-3 opacity-25"></i>
+                                        Aún no hay actividades registradas.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- --- SECCIÓN: FIRMA DEL COORDINADOR CON PREVISUALIZACIÓN --- --}}
+            @if(auth()->user()->role == 'coordinador' && $agenda->estado == 'ENVIADA')
+                <div class="mt-5 p-4 border-top border-primary border-3 bg-primary bg-opacity-10 rounded-4 shadow-sm">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="fw-bold text-primary"><i class="fas fa-file-signature me-2"></i>Área de Firma Autorizada</h4>
+                            <p class="text-dark mb-4">Antes de firmar, asegúrese de revisar el contenido del reporte en PDF.</p>
+                            
+                            {{-- BOTÓN PARA REVISAR PDF --}}
+                            <a href="{{ route('agenda.pdf', $agenda->id) }}" target="_blank" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="fas fa-file-pdf me-2"></i> REVISAR PDF ANTES DE FIRMAR
+                            </a>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <form action="{{ route('agenda.autorizar', $agenda->id) }}" method="POST" enctype="multipart/form-data" class="card card-body shadow-sm border-0 rounded-4">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted">IMAGEN DE FIRMA (PNG/JPG)</label>
+                                    <input type="file" name="firma_archivo" class="form-control" accept="image/*" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold py-2" onclick="return confirm('¿Ha validado el PDF y desea aprobar este reporte?')">
+                                    <i class="fas fa-check-double me-1"></i> Firmar y Aprobar Agenda
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Actividades a ejecutar</label>
-                        <textarea name="actividades_ejecutar" class="form-control" rows="4" placeholder="Describa las actividades realizadas..." required></textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Desplazamientos Internos</label>
-                        <input type="text" name="desplazamientos_internos" class="form-control mb-3" placeholder="Lugar o N/A">
-                        
-                        <label class="form-label fw-bold">Ruta de Regreso (Destino Final)</label>
-                        <input type="text" name="ruta_regreso" class="form-control bg-light" value="{{ $agenda->municipio_destino }} - MEDELLÍN" readonly>
-                    </div>
+            @endif
+            
+            {{-- VISTA DE FIRMA YA CARGADA --}}
+            @if($agenda->firma_supervisor)
+                <div class="mt-5 text-center border-top pt-4">
+                    <p class="text-muted small mb-1">Firmado electrónicamente por Coordinación</p>
+                    <img src="{{ asset('storage/' . $agenda->firma_supervisor) }}" alt="Firma Coordinador" style="max-height: 100px;">
+                    <p class="fw-bold mt-2 mb-0 text-success" style="font-size: 0.8rem;">Avalado el: {{ $agenda->fecha_firma_coordinador }}</p>
                 </div>
+            @endif
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Observaciones</label>
-                    <textarea name="observaciones" class="form-control" rows="3" placeholder="Ej: Se liquidan gastos de transporte..."></textarea>
-                </div>
-
-                <button type="submit" class="btn text-white w-100 fw-bold py-3 shadow-sm" style="background-color: #4b8a5f; border-radius: 10px;">
-                    <i class="fas fa-save me-2"></i> Guardar Actividad
-                </button>
-            </form>
-
-            {{-- SECCIÓN: Actividades Registradas con Columnas Identicas en Tamaño --}}
-            <div class="mt-5">
-                <div class="d-flex align-items-center mb-3">
-                    <h5 class="fw-bold text-dark mb-0">Actividades Registradas</h5>
-                    <hr class="flex-grow-1 ms-3 opacity-25">
-                </div>
-                
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="table-responsive">
-                        {{-- table-layout: fixed obliga a que las columnas respeten el % exacto --}}
-                        <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
-                            <thead style="background-color: #f8f9fa; border-bottom: 2px solid #eee;">
-                                <tr class="text-dark">
-                                    <th class="ps-4 py-3" style="width: 20%;">Fecha</th>
-                                    <th class="py-3 text-center" style="width: 20%;">Actividad</th>
-                                    <th class="py-3 text-center" style="width: 20%;">Transporte</th>
-                                    <th class="py-3 text-center" style="width: 20%;">Despl. Internos</th>
-                                    <th class="pe-4 py-3 text-center" style="width: 20%;">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($agenda->actividades as $act)
-                                    <tr>
-                                        <td class="ps-4 py-4 text-dark fw-medium">
-                                            {{ $act->fecha_reporte->format('d/m/Y') }}
-                                        </td>
-                                        <td class="py-4 text-center text-muted" style="word-wrap: break-word; white-space: normal;">
-                                            {{ $act->actividades_ejecutar }}
-                                        </td>
-                                        <td class="py-4 text-center">
-                                            <span class="badge rounded px-3 py-2 text-uppercase shadow-sm" 
-                                                  style="background-color: #7dd3f7; color: #0c4a6e; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px;">
-                                                @if(is_array($act->medios_transporte))
-                                                    {{ implode(', ', $act->medios_transporte) }}
-                                                @else
-                                                    {{ $act->medios_transporte }}
-                                                @endif
-                                            </span>
-                                        </td>
-                                        <td class="py-4 text-center text-dark">
-                                            {{ $act->desplazamientos_internos ?? 'N/A' }}
-                                        </td>
-                                        <td class="pe-4 py-4 text-center">
-                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill" style="font-size: 0.75rem;">
-                                                <i class="fas fa-check me-1"></i> Registrado
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted">
-                                            <p class="mb-0">No hay actividades registradas aún.</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

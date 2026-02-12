@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use App\Models\AgendaActividad;
-
 
 class AgendaDesplazamiento extends Model
 {
@@ -40,23 +40,39 @@ class AgendaDesplazamiento extends Model
 
         'obligaciones_contrato',
 
+        // Firmas
         'firma_contratista',
         'firma_supervisor',
         'firma_ordenador',
 
-        'estado'
+        // Control de Estado
+        'estado',
+
+        // CAMPOS NUEVOS PARA VIÁTICOS
+        'valor_viaticos',       // Monto calculado por el liquidador
+        'observaciones_finanzas' // Notas del área de viáticos
     ];
 
     protected $casts = [
         'obligaciones_contrato' => 'array',
+        'fecha_inicio_desplazamiento' => 'date',
+        'fecha_fin_desplazamiento' => 'date',
+        'valor_viaticos' => 'decimal:2',
     ];
 
-
-    public function actividades()
+    /**
+     * Relación con el usuario que creó la agenda
+     */
+    public function user()
     {
-        return $this->hasMany(AgendaActividad::class);
+        return $this->belongsTo(User::class);
     }
 
-
-
+    /**
+     * Relación con las actividades detalladas
+     */
+    public function actividades()
+    {
+        return $this->hasMany(AgendaActividad::class, 'agenda_desplazamiento_id');
+    }
 }
